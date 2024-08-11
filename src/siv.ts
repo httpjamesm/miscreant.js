@@ -145,6 +145,7 @@ export class SIV implements ISIVLike {
     this._mac.reset();
 
     for (const ad of associated_data) {
+      if (ad.byteLength === 0) continue;
       await this._mac.update(ad);
       this._tmp1.clear();
       this._tmp1.data.set(await this._mac.finish());
