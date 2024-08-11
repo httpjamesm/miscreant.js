@@ -1,6 +1,3 @@
-// Copyright (C) 2017-2019 Tony Arcieri
-// MIT License. See LICENSE file for details.
-
 import { suite, test } from "mocha-typescript";
 import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
@@ -27,6 +24,22 @@ chai.use(chaiAsPromised);
       expect(sealed).to.eql(v.ciphertext);
 
       const unsealed = await aead.open(sealed, v.nonce, v.ad);
+      expect(unsealed).not.to.be.null;
+      expect(unsealed!).to.eql(v.plaintext);
+      expect(() => aead.clear()).not.to.throw();
+    }
+  }
+
+  @test async "should correctly seal and open with empty nonce"() {
+    const softProvider = new miscreant.SoftCryptoProvider();
+
+    for (let v of AEADSpec.vectors) {
+      const aead = await miscreant.AEAD.importKey(v.key, v.alg, softProvider);
+      const emptyNonce = new Uint8Array(0);
+      const sealed = await aead.seal(v.plaintext, emptyNonce, v.ad);
+      expect(sealed).to.eql(v.ciphertext);
+
+      const unsealed = await aead.open(sealed, emptyNonce, v.ad);
       expect(unsealed).not.to.be.null;
       expect(unsealed!).to.eql(v.plaintext);
       expect(() => aead.clear()).not.to.throw();

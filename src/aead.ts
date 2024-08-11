@@ -26,7 +26,8 @@ export class AEAD implements IAEADLike {
     nonce: Uint8Array,
     associatedData: Uint8Array = new Uint8Array(0),
   ): Promise<Uint8Array> {
-    return this._siv.seal(plaintext, [associatedData, nonce]);
+    const ad = nonce.length > 0 ? [associatedData, nonce] : [associatedData];
+    return this._siv.seal(plaintext, ad);
   }
 
   /** Decrypt and authenticate data using AES-SIV */
@@ -35,7 +36,8 @@ export class AEAD implements IAEADLike {
     nonce: Uint8Array,
     associatedData: Uint8Array = new Uint8Array(0),
   ): Promise<Uint8Array> {
-    return this._siv.open(ciphertext, [associatedData, nonce]);
+    const ad = nonce.length > 0 ? [associatedData, nonce] : [associatedData];
+    return this._siv.open(ciphertext, ad);
   }
 
   /** Make a best effort to wipe memory used by this instance */
